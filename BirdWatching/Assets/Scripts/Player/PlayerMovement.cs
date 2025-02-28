@@ -5,11 +5,14 @@ using UnityEngine;
 
 public class PlayerMovement : MonoBehaviour
 {
-    [SerializeField] private float speed;
+    [SerializeField] public float currentSpeed;
+    [SerializeField] public float maxSpeed;
+    [SerializeField] public float defaultSpeed;
     [SerializeField] private float gravity;
     [SerializeField] private float jumpHeight;
 
     [SerializeField] private CharacterController characterController;
+    [SerializeField] private Camera mainCamera;
     private Vector3 velocity;
     private bool isGrounded;
 
@@ -31,9 +34,20 @@ public class PlayerMovement : MonoBehaviour
         float moveX = Input.GetAxis("Horizontal");
         float moveZ = Input.GetAxis("Vertical");
 
-        Vector3 move = transform.right * moveX + transform.forward * moveZ;
+        currentSpeed = Input.GetKey(KeyCode.LeftShift) ? maxSpeed: defaultSpeed;
 
-        characterController.Move(move * speed * Time.deltaTime);
+        Vector3 camForward = mainCamera.transform.forward;
+        Vector3 camRight = mainCamera.transform.right;
+
+        camForward.y = 0;
+        camRight.y = 0;
+
+        camForward.Normalize();
+        camRight.Normalize();
+
+        Vector3 move = camRight * moveX + camForward * moveZ;
+
+        characterController.Move(move * currentSpeed * Time.deltaTime);
 
         if (isGrounded && Input.GetKey(KeyCode.Space))
         {
