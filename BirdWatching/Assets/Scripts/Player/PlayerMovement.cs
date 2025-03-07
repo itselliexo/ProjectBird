@@ -49,7 +49,7 @@ public class PlayerMovement : MonoBehaviour
 
         characterController.Move(move * currentSpeed * Time.deltaTime);
 
-        if (isGrounded && Input.GetKey(KeyCode.Space))
+        if (isGrounded && Input.GetKeyDown(KeyCode.Space))
         {
             velocity.y = Mathf.Sqrt(jumpHeight * 2f * gravity);
         }
