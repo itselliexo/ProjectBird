@@ -10,6 +10,8 @@ public class ThirdPersonCamera : MonoBehaviour
     [SerializeField] Vector3 boom;
     [SerializeField] private bool isFirstPerson = false;
     [SerializeField] RenderTexture renderTexture;
+    public BirdDatabase birdDatabase;
+    [SerializeField] private Bird[] allBirds;
     public GameObject targetBird;
 
     [Header("Mouse Settings")]
@@ -26,6 +28,11 @@ public class ThirdPersonCamera : MonoBehaviour
     private void LateUpdate()
     {
         if (!player) return;
+
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            birdDatabase.ResetProgress();
+        }
 
         if (Input.GetMouseButtonDown(1))
         {
@@ -45,13 +52,20 @@ public class ThirdPersonCamera : MonoBehaviour
         {
             if (Input.GetMouseButtonDown(0))
             {
+                AssignTargetBird();
                 StartCoroutine(CapturePhoto());
             }
         }
     }
+
+    private void UpdateBirdArray()
+    {
+        allBirds = FindObjectsOfType<Bird>();
+    }
     private void Start()
     {
         Cursor.lockState = CursorLockMode.Locked;
+        UpdateBirdArray();
     }
 
     private void HandleThirdRotation()
@@ -68,17 +82,17 @@ public class ThirdPersonCamera : MonoBehaviour
 
         mainCamera.transform.position = desiredPosition;
 
-       /*RaycastHit hit;
-        if (Physics.Raycast(player.transform.position, (desiredPosition - player.transform.position).normalized, out hit, boom.magnitude))
-        {
-            mainCamera.transform.position = hit.point + hit.normal * 0.3f;
-        }
-        else
-        {
-            mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, desiredPosition, Time.deltaTime * 10);
-        }*/
+        /*RaycastHit hit;
+         if (Physics.Raycast(player.transform.position, (desiredPosition - player.transform.position).normalized, out hit, boom.magnitude))
+         {
+             mainCamera.transform.position = hit.point + hit.normal * 0.3f;
+         }
+         else
+         {
+             mainCamera.transform.position = Vector3.Lerp(mainCamera.transform.position, desiredPosition, Time.deltaTime * 10);
+         }*/
 
-            mainCamera.transform.LookAt(player.transform.position + Vector3.up * boom.y);
+        mainCamera.transform.LookAt(player.transform.position + Vector3.up * boom.y);
     }
 
     private void HandleFirstRotation()
@@ -100,13 +114,16 @@ public class ThirdPersonCamera : MonoBehaviour
 
         mainCamera.Render();
 
-        if (IsObjectInView(targetBird))
+        Bird bird = targetBird.GetComponent<Bird>();
+
+        if (bird != null && IsObjectInView(targetBird))
         {
-            Debug.Log("Bird Found");
-        }
-        else
-        {
-            Debug.Log("Bird Not Found");
+
+            birdDatabase.UnlockBird(bird.birdData.birdName);
+
+            if (bird.birdData.isUnlocked == true)
+            {
+            }
         }
 
         mainCamera.targetTexture = null;
@@ -114,32 +131,66 @@ public class ThirdPersonCamera : MonoBehaviour
 
     bool IsObjectInView(GameObject obj)
     {
-        if (obj.CompareTag("Robin"))
+        Bird bird = obj.GetComponent<Bird>();
+
+        if (bird == null || bird.birdData == null)
         {
-            Vector3 viewPos = mainCamera.WorldToViewportPoint(obj.transform.position);
+            return false;
+        }
 
-            bool inViewport = viewPos.z > 0 && viewPos.x > 0 && viewPos.x < 1 && viewPos.y > 0 && viewPos.y < 1;
+        Vector3 viewPos = mainCamera.WorldToViewportPoint(obj.transform.position);
 
-            if (!inViewport)
+        bool inViewport = viewPos.z > 0 && viewPos.x > 0 && viewPos.x < 1 && viewPos.y > 0 && viewPos.y < 1;
+
+        if (!inViewport)
+        {
+            return false;
+        }
+
+        Vector3 direction = obj.transform.position - mainCamera.transform.position;
+        RaycastHit hit;
+
+        if (Physics.Raycast(mainCamera.transform.position, direction, out hit))
+        {
+            return hit.collider.gameObject == obj;
+        }
+
+        return false;
+    }
+
+    private void AssignTargetBird()
+    {
+        Bird closestBird = null;
+        float closestDistance = Mathf.Infinity;
+
+        foreach (Bird bird in allBirds)
+        {
+            if (bird != null && bird.birdData != null)
             {
-                return false;
-            }
+                Vector3 viewPos = mainCamera.WorldToViewportPoint(bird.transform.position);
 
-            Vector3 direction = obj.transform.position - mainCamera.transform.position;
-            RaycastHit hit;
+                if (viewPos.z > 0 && viewPos.x >= 0 && viewPos.x <= 1 && viewPos.y >= 0 && viewPos.y <= 1)
+                {
+                    float distanceToBird = Vector3.Distance(mainCamera.transform.position, bird.transform.position);
 
-            if (Physics.Raycast(mainCamera.transform.position, direction, out hit))
-            {
-                if (hit.collider.gameObject == obj)
-                {
-                    return true;
-                }
-                else
-                {
-                    return false;
+                    if (distanceToBird < closestDistance)
+                    {
+                        closestDistance = distanceToBird;
+                        closestBird = bird;
+                    }
                 }
             }
         }
-            return false;
+
+        closestDistance = Mathf.Infinity;
+
+        if (closestBird != null)
+        {
+            targetBird = closestBird.gameObject;
+        }
+        else
+        {
+            Debug.Log("No bird in the viewport.");
+        }
     }
 }

@@ -4,8 +4,5 @@ using UnityEngine;
 
 public class Robin : Bird
 {
-protected override void Fly()
-    {
-        base.Fly();
-    }
+    
 }

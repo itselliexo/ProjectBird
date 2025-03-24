@@ -4,5 +4,10 @@ using UnityEngine;
 
 public class BirdLog : MonoBehaviour
 {
-    public List<Bird> foundBirds = new List<Bird>();
+    
+
+    public void UnlockBird(int birdNumber)
+    {
+        
+    }
 }
