@@ -15,11 +15,15 @@ public class PlayerMovement : MonoBehaviour
     [SerializeField] private Camera mainCamera;
     private Vector3 velocity;
     private bool isGrounded;
+    public bool canMove = true;
 
 
     private void Update()
     {
-        HandleMovement();
+        if (canMove)
+        {
+            HandleMovement();
+        }
     }
 
     private void HandleMovement()
@@ -46,6 +50,10 @@ public class PlayerMovement : MonoBehaviour
         camRight.Normalize();
 
         Vector3 move = camRight * moveX + camForward * moveZ;
+        if (move.magnitude > 1)
+        {
+            move.Normalize();
+        }
 
         characterController.Move(move * currentSpeed * Time.deltaTime);
 
