@@ -20,6 +20,7 @@ public class WorkMinigame : MonoBehaviour
     [Header("Round Settings")]
     [SerializeField] private int roundNumber;
     [SerializeField] private int difficultySetting;
+    [SerializeField] public bool isPlaying = false;
 
     [Header("Player Settings")]
     [SerializeField] private int playerHealth;
@@ -44,7 +45,6 @@ public class WorkMinigame : MonoBehaviour
 
     public void StartWorkGame()
     {
-
         AddPlayerCards();
 
         AddOpponentCards();
@@ -110,5 +110,10 @@ public class WorkMinigame : MonoBehaviour
         allOpponentCards.Clear();
         currentHand.Clear();
         opponentHand.Clear();
+    }
+
+    public void EndWorkGame()
+    {
+
     }
 }

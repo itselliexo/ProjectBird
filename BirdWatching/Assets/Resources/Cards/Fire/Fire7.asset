@@ -16,3 +16,4 @@ MonoBehaviour:
   cardNumber: 7
   suit: 0
   currencyValue: 40
+  artAsset: {fileID: 21300000, guid: 2293ac4dc382dfc499cbdcaf321d9fe0, type: 3}

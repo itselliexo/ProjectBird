@@ -58,10 +58,36 @@ public class WorkTrigger : MonoBehaviour
         {
             if (workMinigame != null)
             {
-                workMinigame.StartWorkGame();
-                prompText.SetActive(false);
-                playerMovement.canMove = !playerMovement.canMove;
+                if (!workMinigame.isPlaying)
+                {
+                    workMinigame.StartWorkGame();
+                    Cursor.lockState = CursorLockMode.None;
+                    if (minigameUI != null)
+                    {
+                        minigameUI.SetActive(true);
+                    }
+                }
+                if (workMinigame.isPlaying)
+                {
+                    workMinigame.EndWorkGame();
+                    Cursor.lockState = CursorLockMode.Locked;
+                    if (minigameUI != null)
+                    {
+                        minigameUI.SetActive(false);
+                    }
+
+                }
+                if (workMinigame.isPlaying)
+                {
+                    prompText.SetActive(true);
+                }
+                else
+                {
+                    prompText.SetActive(false);
+                }
+                    playerMovement.canMove = !playerMovement.canMove;
                 thirdPersonCamera.canLook = !thirdPersonCamera.canLook;
+                workMinigame.isPlaying = !workMinigame.isPlaying;
             }
         }
     }
