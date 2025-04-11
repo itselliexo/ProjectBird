@@ -114,6 +114,6 @@ public class WorkMinigame : MonoBehaviour
 
     public void EndWorkGame()
     {
-
+        ResetWorkGame();
     }
 }

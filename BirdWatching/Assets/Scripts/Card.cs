@@ -12,4 +12,5 @@ public class Card : ScriptableObject
     public CardSuit suit;
     public int currencyValue;
     public Sprite artAsset;
+    public Sprite cardBack;
 }
